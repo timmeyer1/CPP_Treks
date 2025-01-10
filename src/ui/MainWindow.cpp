@@ -113,10 +113,127 @@ void MainWindow::updateWeatherInfo()
 
 void MainWindow::createTreksTab()
 {
-    // À implémenter
+    QWidget* treksWidget = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout(treksWidget);
+
+    // Groupe formulaire pour nouveau trek
+    QGroupBox* formGroup = new QGroupBox("Nouveau Trek");
+    QFormLayout* formLayout = new QFormLayout();
+
+    // Création des champs
+    trekNomInput = new QLineEdit();
+    trekLieuInput = new QLineEdit();
+    trekDureeInput = new QLineEdit();
+    trekPrixInput = new QLineEdit();
+    trekNiveauCombo = new QComboBox();
+    trekDescriptionInput = new QLineEdit();
+
+    // Ajout des niveaux de difficulté
+    trekNiveauCombo->addItem("Facile");
+    trekNiveauCombo->addItem("Moyen");
+    trekNiveauCombo->addItem("Difficile");
+    trekNiveauCombo->addItem("Expert");
+
+    // Ajout des champs au formulaire
+    formLayout->addRow("Nom:", trekNomInput);
+    formLayout->addRow("Lieu:", trekLieuInput);
+    formLayout->addRow("Durée (jours):", trekDureeInput);
+    formLayout->addRow("Prix:", trekPrixInput);
+    formLayout->addRow("Niveau:", trekNiveauCombo);
+    formLayout->addRow("Description:", trekDescriptionInput);
+
+    QPushButton* addButton = new QPushButton("Ajouter Trek");
+    formLayout->addRow(addButton);
+
+    formGroup->setLayout(formLayout);
+    layout->addWidget(formGroup);
+
+    // Ajout de l'onglet
+    tabWidget->addTab(treksWidget, "Treks");
+
+    connect(addButton, &QPushButton::clicked, this, &MainWindow::onTrekAdded);
+}
+
+void MainWindow::onTrekAdded()
+{
+    try {
+        Trek trek(
+            trekNomInput->text().toStdString(),
+            trekLieuInput->text().toStdString(),
+            trekDureeInput->text().toInt(),
+            trekPrixInput->text().toDouble(),
+            trekNiveauCombo->currentText().toStdString(),
+            trekDescriptionInput->text().toStdString()
+        );
+
+        if (dbManager->addTrek(trek)) {
+            QMessageBox::information(this, "Succès", "Trek ajouté avec succès!");
+            // Réinitialisation des champs
+            trekNomInput->clear();
+            trekLieuInput->clear();
+            trekDureeInput->clear();
+            trekPrixInput->clear();
+            trekDescriptionInput->clear();
+            trekNiveauCombo->setCurrentIndex(0);
+        } else {
+            QMessageBox::critical(this, "Erreur", "Erreur lors de l'ajout du trek");
+        }
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, "Erreur", e.what());
+    }
 }
 
 void MainWindow::createReservationsTab()
 {
-    // À implémenter
+    QWidget* reservationsWidget = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout(reservationsWidget);
+
+    // Groupe formulaire pour nouvelle réservation
+    QGroupBox* formGroup = new QGroupBox("Nouvelle Réservation");
+    QFormLayout* formLayout = new QFormLayout();
+
+    // Création des combobox pour sélection client et trek
+    QComboBox* clientCombo = new QComboBox();
+    QComboBox* trekCombo = new QComboBox();
+
+    // Remplissage des combobox avec les données de la base
+    auto clients = dbManager->getAllClients();
+    for (const auto& client : clients) {
+        clientCombo->addItem(QString::fromStdString(client.getNom() + " " + client.getPrenom()), 
+                            QVariant(client.getId()));
+    }
+
+    auto treks = dbManager->getAllTreks();
+    for (const auto& trek : treks) {
+        trekCombo->addItem(QString::fromStdString(trek.getNom()), 
+                          QVariant(trek.getId()));
+    }
+
+    formLayout->addRow("Client:", clientCombo);
+    formLayout->addRow("Trek:", trekCombo);
+
+    QPushButton* addButton = new QPushButton("Créer Réservation");
+    formLayout->addRow(addButton);
+
+    formGroup->setLayout(formLayout);
+    layout->addWidget(formGroup);
+
+    // Ajout de l'onglet
+    tabWidget->addTab(reservationsWidget, "Réservations");
+
+    connect(addButton, &QPushButton::clicked, [=]() {
+        int clientId = clientCombo->currentData().toInt();
+        int trekId = trekCombo->currentData().toInt();
+        
+        Reservation reservation(clientId, trekId);
+        
+        if (dbManager->addReservation(reservation)) {
+            QMessageBox::information(this, "Succès", "Réservation créée avec succès!");
+            clientCombo->setCurrentIndex(0);
+            trekCombo->setCurrentIndex(0);
+        } else {
+            QMessageBox::critical(this, "Erreur", "Erreur lors de la création de la réservation");
+        }
+    });
 }
+    

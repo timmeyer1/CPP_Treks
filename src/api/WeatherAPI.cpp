@@ -1,4 +1,5 @@
 #include "WeatherAPI.h"
+#include <stdexcept>
 
 WeatherAPI::WeatherAPI(const std::string& key) : apiKey(key) {
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -11,6 +12,26 @@ WeatherAPI::~WeatherAPI() {
 size_t WeatherAPI::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
     userp->append((char*)contents, size * nmemb);
     return size * nmemb;
+}
+
+std::string WeatherAPI::makeRequest(const std::string& url) {
+    CURL* curl = curl_easy_init();
+    std::string readBuffer;
+
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if(res != CURLE_OK) {
+            throw std::runtime_error("Erreur lors de la requête curl");
+        }
+    }
+
+    return readBuffer;
 }
 
 WeatherAPI::WeatherData WeatherAPI::getWeatherByCoordinates(double lat, double lon) {
