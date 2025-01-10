@@ -1,10 +1,9 @@
 #include "WeatherAPI.h"
 #include <stdexcept>
 
-WeatherAPI::WeatherAPI(const std::string& key) : apiKey(key) {
+WeatherAPI::WeatherAPI(const std::string& key) : apiKey("e3e294b9ac2fb825df5b97f6c895bcde") {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
-
 WeatherAPI::~WeatherAPI() {
     curl_global_cleanup();
 }
@@ -50,3 +49,4 @@ WeatherAPI::WeatherData WeatherAPI::getWeatherByCoordinates(double lat, double l
     
     return data;
 }
+

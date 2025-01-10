@@ -91,7 +91,7 @@ bool DatabaseManager::addTrek(Trek& trek) {
 
 // Implémentation des méthodes CRUD pour Réservations
 bool DatabaseManager::addReservation(Reservation& reservation) {
-    std::stringstream query;
+    std::stringstream query;s
     query << "INSERT INTO reservations (client_id, trek_id, date_reservation, statut) VALUES ("
           << reservation.getClientId() << ", "
           << reservation.getTrekId() << ", '"
