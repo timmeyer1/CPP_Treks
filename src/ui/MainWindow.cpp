@@ -236,4 +236,8 @@ void MainWindow::createReservationsTab()
         }
     });
 }
-    
+
+void MainWindow::onReservationAdded() {
+    // Exemple : afficher un message ou connecter des fonctionnalités à venir
+    QMessageBox::information(this, "Info", "Réservation ajoutée (fonctionnalité à compléter).");
+}

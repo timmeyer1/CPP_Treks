@@ -3,5 +3,6 @@
         "*.ndjson": "jsonl",
         "*.dbclient-js": "javascript",
         "qformlayout": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

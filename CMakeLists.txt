@@ -7,30 +7,36 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Configuration Qt
+# Trouver les packages requis
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(CURL REQUIRED)
+find_package(MySQL REQUIRED)
 
-# Inclusion des répertoires
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/include
-)
-
-# Sources
+# Sources du projet
 set(SOURCES
     src/main.cpp
-    src/ui/MainWindow.cpp
     src/database/DatabaseManager.cpp
     src/models/Client.cpp
     src/models/Trek.cpp
     src/models/Reservation.cpp
     src/api/WeatherAPI.cpp
+    src/ui/MainWindow.cpp
 )
 
 # Création de l'exécutable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Liaison avec Qt
+# Inclusion des répertoires
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${MYSQL_INCLUDE_DIR}
+    ${CURL_INCLUDE_DIRS}
+)
+
+# Liaison avec les bibliothèques
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Widgets
+    ${CURL_LIBRARIES}
+    ${MYSQL_LIBRARIES}
+    mysqlclient
 )
